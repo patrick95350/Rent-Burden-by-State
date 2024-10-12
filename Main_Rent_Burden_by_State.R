@@ -91,6 +91,12 @@ for(year in years){
 
 colnames(acs_data_burden) <- c('State', years)
 colnames(acs_data_severe) <- c('State', years)
-# Step 2 ####
+
+# Save Results ####
+write.csv(acs_data_burden, file = here::here('output', 'rent_burdened.csv'), row.names = FALSE)
+write.csv(acs_data_severe, file = here::here('output', 'rent_severe.csv'), row.names = FALSE)
+
+
+
 
 # Step 3 ####
