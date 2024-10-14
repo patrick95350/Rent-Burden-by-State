@@ -38,7 +38,7 @@ numerator_tables <- c('B25070_007E', 'B25070_008E', 'B25070_009E', 'B25070_010E'
 denominator_table <- 'B25070_001E'
 tables <-  paste0(c('NAME', denominator_table, numerator_tables), collapse=',')
 
-years <- 2005:2022
+years <- 2005:2023
 
 # Custom Functions ####
 
@@ -48,6 +48,8 @@ for(year in years){
   if(year == 2020){
     acs_data_burden <- cbind(acs_data_burden, `2020`=NA)
     acs_data_severe <- cbind(acs_data_severe, `2020`=NA)
+    acs_data_burden_pct <- cbind(acs_data_burden_pct, `2020`=NA)
+    acs_data_severe_pct <- cbind(acs_data_severe_pct, `2020`=NA)
     next
   }
   # Pull ACS Data
@@ -78,23 +80,33 @@ for(year in years){
   if(year == years[1]){
     acs_data_burden <- data.frame(State = data$NAME)
     acs_data_severe <- data.frame(State = data$NAME)
+    acs_data_burden_pct <- data.frame(State = data$NAME)
+    acs_data_severe_pct <- data.frame(State = data$NAME)
   }
   
   # Calculate % Rent Burdened
   acs_data_burden <- merge(acs_data_burden,
+                           data.frame(State = data$NAME, var = rowSums(data[,numerator_tables])), by = 'State')
+  acs_data_burden_pct <- merge(acs_data_burden_pct,
                            data.frame(State = data$NAME, var = rowSums(data[,numerator_tables])/data[,denominator_table]), by  = 'State')
   
   # Calculate % Rent Burdened
   acs_data_severe <- merge(acs_data_severe,
+                           data.frame(State = data$NAME, var = data[,'B25070_010E']), by = 'State')
+  acs_data_severe_pct <- merge(acs_data_severe_pct,
                            data.frame(State = data$NAME, var = data[,'B25070_010E']/data[,denominator_table]), by  = 'State')
 }
 
 colnames(acs_data_burden) <- c('State', years)
 colnames(acs_data_severe) <- c('State', years)
+colnames(acs_data_burden_pct) <- c('State', years)
+colnames(acs_data_severe_pct) <- c('State', years)
 
 # Save Results ####
 write.csv(acs_data_burden, file = here::here('output', 'rent_burdened.csv'), row.names = FALSE)
 write.csv(acs_data_severe, file = here::here('output', 'rent_severe.csv'), row.names = FALSE)
+write.csv(acs_data_burden_pct, file = here::here('output', 'rent_burdened_pct.csv'), row.names = FALSE)
+write.csv(acs_data_severe_pct, file = here::here('output', 'rent_severe_pct.csv'), row.names = FALSE)
 
 
 
